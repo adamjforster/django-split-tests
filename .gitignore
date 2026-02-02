@@ -1,0 +1,8 @@
+# IDEs
+.idea
+
+# Mac OS
+.DS_Store
+
+# Python
+*.py[co]

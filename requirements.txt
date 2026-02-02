@@ -1,0 +1,4 @@
+# These are requirements for working on this package in isolation.
+# Package dependencies are managed in the pyproject.toml
+Django>=6.0
+pre_commit>=4.5
