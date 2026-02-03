@@ -6,3 +6,6 @@
 
 # Python
 *.py[co]
+
+# Test database.
+db.sqlite3

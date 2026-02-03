@@ -14,9 +14,7 @@ license-files = ["LICENSE"]
 authors = [
   {name = "Adam J. Forster", email = "hello@adamjforster.co"},
 ]
-dependencies = [
-    "Django>=6.0",
-]
+dependencies = ["Django>=6.0"]
 
 
 [tool.hatch.build]
@@ -32,6 +30,20 @@ multi_line_output = 9
 profile = "black"
 skip_gitignore = true
 src_paths = ["split_tests", "tests"]
+
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "settings"
+log_cli = true
+# To debug test failures, switch WARN to DEBUG below.
+log_cli_level = "WARN"
+#log_cli_level = "DEBUG"
+pythonpath = "."
+python_files = [
+    "tests.py",
+    "test_*.py",
+    "*_tests.py",
+]
 
 
 [tool.ruff]

@@ -11,3 +11,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The basic project structure including `pyproject.toml`.
 - Pre-commit configuration.
+- Initial `SplitTest`, `Cohort`, and `Assignment` models.
+- A basic admin for managing split tests and cohorts.
