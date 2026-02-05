@@ -3,6 +3,10 @@
 > [!WARNING]
 > This project is under initial development and is not yet ready for any use.
 
+[![pytest](https://github.com/adamjforster/django-split-tests/actions/workflows/pytest.yaml/badge.svg)](https://github.com/adamjforster/django-split-tests/actions/workflows/pytest.yaml)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/adamjforster/django-split-tests/main.svg)](https://results.pre-commit.ci/latest/github/adamjforster/django-split-tests/main)
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/adamjforster/django-split-tests?utm_source=oss&utm_medium=github&utm_campaign=adamjforster%2Fdjango-split-tests&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+
 A Django app for managing split (A/B) tests.
 
 ## Setup
