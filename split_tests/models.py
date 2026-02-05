@@ -78,7 +78,8 @@ class SplitTest(models.Model):
             return None
 
         if cohort and user.is_authenticated:
-            cohort.users.add(user)
+            # Use get_or_create to avoid an IntegrityError.
+            cohort.assignments.get_or_create(user=user)
 
         return cohort
 
