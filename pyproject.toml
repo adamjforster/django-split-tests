@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "django-split-tests"
-version = "0.1.0"
+version = "0.1.0-dev"
 description = "A Django app for managing split (A/B) tests."
 readme = "README.md"
 requires-python = ">=3.14"
