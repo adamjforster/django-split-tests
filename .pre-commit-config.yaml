@@ -1,5 +1,8 @@
 default_stages: [pre-commit, pre-merge-commit]
 
+ci:
+  skip: [markdownlint]  # This is causing pre-commit.ci to timeout.
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
