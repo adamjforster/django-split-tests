@@ -17,6 +17,11 @@ authors = [
 dependencies = ["Django>=6.0"]
 
 
+[tool.coverage.run]
+branch = true
+relative_files = true
+
+
 [tool.hatch.build]
 include = ["split_tests"]
 
@@ -34,6 +39,7 @@ src_paths = ["split_tests", "tests"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "settings"
+addopts = "--cov=split_tests"
 log_cli = true
 # To debug test failures, switch WARN to DEBUG below.
 log_cli_level = "WARN"
