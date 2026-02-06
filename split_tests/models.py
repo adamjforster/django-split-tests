@@ -9,6 +9,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from . import help_text
+from .managers import SplitTestCacheManager
 
 
 class SplitTest(models.Model):
@@ -26,6 +27,9 @@ class SplitTest(models.Model):
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     modified_at = models.DateTimeField(_("modified at"), auto_now=True)
 
+    objects = models.Manager()
+    cache = SplitTestCacheManager()
+
     class Meta:
         verbose_name = _("split test")
         verbose_name_plural = _("split tests")
@@ -37,6 +41,15 @@ class SplitTest(models.Model):
 
     def __repr__(self):
         return f"<SplitTest: id={self.id} name={self.name} slug={self.slug} uuid={self.uuid}>"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        SplitTest.cache.update()
+
+    def delete(self, *args, **kwargs):
+        result = super().delete(*args, **kwargs)
+        SplitTest.cache.update()
+        return result
 
     def get_cohort(self, user):
         """Return a cohort of this SplitTest for the given user.
@@ -122,6 +135,15 @@ class Cohort(models.Model):
 
     def __repr__(self):
         return f"<Cohort: id={self.id} name={self.name} slug={self.slug} uuid={self.uuid}>"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        SplitTest.cache.update()
+
+    def delete(self, *args, **kwargs):
+        result = super().delete(*args, **kwargs)
+        SplitTest.cache.update()
+        return result
 
 
 class Assignment(models.Model):
