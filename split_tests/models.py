@@ -1,7 +1,5 @@
 import uuid
 
-from random import choices
-
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.validators import MinValueValidator
@@ -9,7 +7,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from . import help_text
-from .managers import SplitTestCacheManager
+from .managers import CohortManager, SplitTestCacheManager
 
 
 class SplitTest(models.Model):
@@ -51,51 +49,6 @@ class SplitTest(models.Model):
         SplitTest.cache.update()
         return result
 
-    def get_cohort(self, user):
-        """Return a cohort of this SplitTest for the given user.
-
-        If the user is authenticated, check to see if they have already been
-        assigned to an active cohort. If not, assign them to one.
-        """
-        cohort = None
-        if not self.is_active:
-            return cohort
-
-        if user.is_authenticated:
-            cohort = (
-                self.cohorts.filter(users=user, is_active=True)
-                .order_by("assignments__assigned_at")
-                .first()
-            )
-
-        if not cohort:
-            cohort = self._assign_cohort(user=user)
-
-        return cohort
-
-    def _assign_cohort(self, user):
-        """Assign a random active cohort of this SplitTest to the given user.
-
-        If the user is authenticated, update the cohort's user list.
-        """
-        cohorts = self.cohorts.filter(is_active=True).order_by("-weight")
-        if not cohorts:
-            return None
-
-        # Make a weighted random choice.
-        weights = [c.weight for c in cohorts]
-        try:
-            cohort = choices(cohorts, weights)[0]
-        except ValueError:
-            # Handle the case where all cohorts have a weight of 0.
-            return None
-
-        if cohort and user.is_authenticated:
-            # Use get_or_create to avoid an IntegrityError.
-            cohort.assignments.get_or_create(user=user)
-
-        return cohort
-
 
 class Cohort(models.Model):
     split_test = models.ForeignKey(
@@ -121,6 +74,8 @@ class Cohort(models.Model):
 
     created_at = models.DateTimeField(_("created at"), auto_now_add=True)
     modified_at = models.DateTimeField(_("modified at"), auto_now=True)
+
+    objects = CohortManager()
 
     class Meta:
         verbose_name = _("cohort")
