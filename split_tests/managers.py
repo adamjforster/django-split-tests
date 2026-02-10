@@ -18,6 +18,7 @@ class SplitTestCacheManager(Manager):
         split_test_uuid_slug_map = {}
         cohort_active_uuids = set()
         cohort_uuid_slug_map = {}
+        cohort_uuid_split_test_uuid_map = {}
 
         current_site = Site.objects.get_current()
         Cohort = self.model._meta.get_field("cohorts").related_model
@@ -40,12 +41,14 @@ class SplitTestCacheManager(Manager):
         if split_test_ids:
             cohorts = Cohort.objects.filter(
                 split_test_id__in=split_test_ids, is_active=True
-            ).values_list("uuid", "slug")
-            for cohort_uuid, cohort_slug in cohorts:
+            ).values_list("uuid", "slug", "split_test__uuid")
+            for cohort_uuid, cohort_slug, split_test_uuid in cohorts:
                 cohort_uuid = str(cohort_uuid)
+                split_test_uuid = str(split_test_uuid)
 
                 cohort_active_uuids.add(cohort_uuid)
                 cohort_uuid_slug_map[cohort_uuid] = cohort_slug
+                cohort_uuid_split_test_uuid_map[cohort_uuid] = split_test_uuid
 
         cache.set(
             cache_config.SPLIT_TEST_ACTIVE_UUIDS_KEY,
@@ -58,10 +61,19 @@ class SplitTestCacheManager(Manager):
             timeout=cache_config.NEVER,
         )
         cache.set(
-            cache_config.COHORT_ACTIVE_UUIDS_KEY, cohort_active_uuids, timeout=cache_config.NEVER
+            cache_config.COHORT_ACTIVE_UUIDS_KEY,
+            cohort_active_uuids,
+            timeout=cache_config.NEVER,
         )
         cache.set(
-            cache_config.COHORT_UUID_SLUG_MAP_KEY, cohort_uuid_slug_map, timeout=cache_config.NEVER
+            cache_config.COHORT_UUID_SLUG_MAP_KEY,
+            cohort_uuid_slug_map,
+            timeout=cache_config.NEVER,
+        )
+        cache.set(
+            cache_config.COHORT_UUID_SPLIT_TEST_UUID_MAP_KEY,
+            cohort_uuid_split_test_uuid_map,
+            timeout=cache_config.NEVER,
         )
 
         return (
@@ -69,35 +81,45 @@ class SplitTestCacheManager(Manager):
             split_test_uuid_slug_map,
             cohort_active_uuids,
             cohort_uuid_slug_map,
+            cohort_uuid_split_test_uuid_map,
         )
 
     def split_test_active_uuids(self):
         """Return a set of UUIDs for all active SplitTests from the cache."""
         split_test_active_uuids = cache.get(cache_config.SPLIT_TEST_ACTIVE_UUIDS_KEY)
         if split_test_active_uuids is None:
-            split_test_active_uuids, _, _, _ = self.update()
+            split_test_active_uuids, _, _, _, _ = self.update()
         return split_test_active_uuids
 
     def split_test_uuid_slug_map(self):
         """Return a dict mapping UUIDs to slugs for all active SplitTests from the cache."""
         split_test_uuid_slug_map = cache.get(cache_config.SPLIT_TEST_UUID_SLUG_MAP_KEY)
         if split_test_uuid_slug_map is None:
-            _, split_test_uuid_slug_map, _, _ = self.update()
+            _, split_test_uuid_slug_map, _, _, _ = self.update()
         return split_test_uuid_slug_map
 
     def cohort_active_uuids(self):
         """Return a set of UUIDs for all active Cohorts from the cache."""
         cohort_active_uuids = cache.get(cache_config.COHORT_ACTIVE_UUIDS_KEY)
         if cohort_active_uuids is None:
-            _, _, cohort_active_uuids, _ = self.update()
+            _, _, cohort_active_uuids, _, _ = self.update()
         return cohort_active_uuids
 
     def cohort_uuid_slug_map(self):
         """Return a dict mapping UUIDs to slugs for all active Cohorts from the cache."""
         cohort_uuid_slug_map = cache.get(cache_config.COHORT_UUID_SLUG_MAP_KEY)
         if cohort_uuid_slug_map is None:
-            _, _, _, cohort_uuid_slug_map = self.update()
+            _, _, _, cohort_uuid_slug_map, _ = self.update()
         return cohort_uuid_slug_map
+
+    def cohort_uuid_split_test_uuid_map(self):
+        """Return a dict mapping Cohort UUIDs to SplitTest UUIDs from the cache."""
+        cohort_uuid_split_test_uuid_map = cache.get(
+            cache_config.COHORT_UUID_SPLIT_TEST_UUID_MAP_KEY
+        )
+        if cohort_uuid_split_test_uuid_map is None:
+            _, _, _, _, cohort_uuid_split_test_uuid_map = self.update()
+        return cohort_uuid_split_test_uuid_map
 
 
 class CohortManager(Manager):

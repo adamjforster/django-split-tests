@@ -9,3 +9,6 @@ SPLIT_TEST_UUID_SLUG_MAP_KEY = (
 )
 COHORT_ACTIVE_UUIDS_KEY = "split_tests:managers:split_test_cache_manager:cohort_active_uuids"
 COHORT_UUID_SLUG_MAP_KEY = "split_tests:managers:split_test_cache_manager:cohort_uuid_slug_map"
+COHORT_UUID_SPLIT_TEST_UUID_MAP_KEY = (
+    "split_tests:managers:split_test_cache_manager:cohort_uuid_split_test_uuid_map"
+)

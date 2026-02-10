@@ -32,14 +32,19 @@ def test_cache_manager_update_excludes_inactive_split_tests():
         is_active=True,
     )
 
-    split_test_active_uuids, split_test_uuid_slug_map, cohort_active_uuids, cohort_uuid_slug_map = (
-        SplitTest.cache.update()
-    )
+    (
+        split_test_active_uuids,
+        split_test_uuid_slug_map,
+        cohort_active_uuids,
+        cohort_uuid_slug_map,
+        cohort_uuid_split_test_uuid_map,
+    ) = SplitTest.cache.update()
 
     assert str(inactive_split_test.uuid) not in split_test_active_uuids
     assert str(inactive_split_test.uuid) not in split_test_uuid_slug_map
     assert str(active_cohort.uuid) not in cohort_active_uuids
     assert str(active_cohort.uuid) not in cohort_uuid_slug_map
+    assert str(active_cohort.uuid) not in cohort_uuid_split_test_uuid_map
 
 
 @pytest.mark.django_db
@@ -62,14 +67,19 @@ def test_cache_manager_update_excludes_other_sites_split_tests():
         is_active=True,
     )
 
-    split_test_active_uuids, split_test_uuid_slug_map, cohort_active_uuids, cohort_uuid_slug_map = (
-        SplitTest.cache.update()
-    )
+    (
+        split_test_active_uuids,
+        split_test_uuid_slug_map,
+        cohort_active_uuids,
+        cohort_uuid_slug_map,
+        cohort_uuid_split_test_uuid_map,
+    ) = SplitTest.cache.update()
 
     assert str(split_test.uuid) not in split_test_active_uuids
     assert str(split_test.uuid) not in split_test_uuid_slug_map
     assert str(cohort.uuid) not in cohort_active_uuids
     assert str(cohort.uuid) not in cohort_uuid_slug_map
+    assert str(cohort.uuid) not in cohort_uuid_split_test_uuid_map
 
 
 @pytest.mark.django_db
@@ -83,14 +93,19 @@ def test_cache_manager_update_excludes_split_tests_with_no_cohorts():
         is_active=True,
     )
 
-    split_test_active_uuids, split_test_uuid_slug_map, cohort_active_uuids, cohort_uuid_slug_map = (
-        SplitTest.cache.update()
-    )
+    (
+        split_test_active_uuids,
+        split_test_uuid_slug_map,
+        cohort_active_uuids,
+        cohort_uuid_slug_map,
+        cohort_uuid_split_test_uuid_map,
+    ) = SplitTest.cache.update()
 
     assert str(split_test.uuid) not in split_test_active_uuids
     assert str(split_test.uuid) not in split_test_uuid_slug_map
     assert cohort_active_uuids == set()
     assert cohort_uuid_slug_map == {}
+    assert cohort_uuid_split_test_uuid_map == {}
 
 
 @pytest.mark.django_db
@@ -113,14 +128,19 @@ def test_cache_manager_update_excludes_split_tests_with_no_active_cohorts():
         is_active=False,
     )
 
-    split_test_active_uuids, split_test_uuid_slug_map, cohort_active_uuids, cohort_uuid_slug_map = (
-        SplitTest.cache.update()
-    )
+    (
+        split_test_active_uuids,
+        split_test_uuid_slug_map,
+        cohort_active_uuids,
+        cohort_uuid_slug_map,
+        cohort_uuid_split_test_uuid_map,
+    ) = SplitTest.cache.update()
 
     assert str(split_test.uuid) not in split_test_active_uuids
     assert str(split_test.uuid) not in split_test_uuid_slug_map
     assert cohort_active_uuids == set()
     assert cohort_uuid_slug_map == {}
+    assert cohort_uuid_split_test_uuid_map == {}
 
 
 @pytest.mark.django_db
@@ -156,9 +176,13 @@ def test_cache_manager_update_includes_only_active_cohorts():
         is_active=False,
     )
 
-    split_test_active_uuids, split_test_uuid_slug_map, cohort_active_uuids, cohort_uuid_slug_map = (
-        SplitTest.cache.update()
-    )
+    (
+        split_test_active_uuids,
+        split_test_uuid_slug_map,
+        cohort_active_uuids,
+        cohort_uuid_slug_map,
+        cohort_uuid_split_test_uuid_map,
+    ) = SplitTest.cache.update()
 
     assert str(split_test.uuid) in split_test_active_uuids
     assert split_test_uuid_slug_map[str(split_test.uuid)] == split_test.slug
@@ -166,6 +190,10 @@ def test_cache_manager_update_includes_only_active_cohorts():
     assert cohort_uuid_slug_map == {
         str(active_cohort_one.uuid): active_cohort_one.slug,
         str(active_cohort_two.uuid): active_cohort_two.slug,
+    }
+    assert cohort_uuid_split_test_uuid_map == {
+        str(active_cohort_one.uuid): str(split_test.uuid),
+        str(active_cohort_two.uuid): str(split_test.uuid),
     }
 
 
@@ -331,6 +359,52 @@ def test_cohort_uuid_slug_map_returns_cached_value():
 
     assert cohort_uuid_slug_map == cached_map
     assert cache.get(cache_config.COHORT_UUID_SLUG_MAP_KEY) == cached_map
+
+
+@pytest.mark.django_db
+def test_cohort_uuid_split_test_uuid_map_populates_empty_cache():
+    """Test that cohort_uuid_split_test_uuid_map populates the cache when it
+    misses.
+    """
+    current_site = Site.objects.get_current()
+    split_test = SplitTest.objects.create(
+        name="Active",
+        slug="active",
+        site=current_site,
+        is_active=True,
+    )
+    cohort = Cohort.objects.create(
+        split_test=split_test,
+        name="Active Cohort",
+        slug="active-cohort",
+        weight=1,
+        is_active=True,
+    )
+
+    cache.clear()
+    assert cache.get(cache_config.COHORT_UUID_SPLIT_TEST_UUID_MAP_KEY) is None
+
+    cohort_uuid_split_test_uuid_map = SplitTest.cache.cohort_uuid_split_test_uuid_map()
+
+    assert cohort_uuid_split_test_uuid_map[str(cohort.uuid)] == str(split_test.uuid)
+    assert (
+        cache.get(cache_config.COHORT_UUID_SPLIT_TEST_UUID_MAP_KEY)
+        == cohort_uuid_split_test_uuid_map
+    )
+
+
+@pytest.mark.django_db
+def test_cohort_uuid_split_test_uuid_map_returns_cached_value():
+    """Test that cohort_uuid_split_test_uuid_map returns the cached value
+    without recomputing.
+    """
+    cached_map = {"uuid": "split-test-uuid"}
+    cache.set(cache_config.COHORT_UUID_SPLIT_TEST_UUID_MAP_KEY, cached_map)
+
+    cohort_uuid_split_test_uuid_map = SplitTest.cache.cohort_uuid_split_test_uuid_map()
+
+    assert cohort_uuid_split_test_uuid_map == cached_map
+    assert cache.get(cache_config.COHORT_UUID_SPLIT_TEST_UUID_MAP_KEY) == cached_map
 
 
 @pytest.fixture
