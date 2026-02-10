@@ -2,5 +2,6 @@
 # Package dependencies are managed in the pyproject.toml
 Django>=6.0
 pre_commit>=4.5
+pymemcache==4.0.0
 pytest-cov>=7.0.0
 pytest-django>=4.11.1
