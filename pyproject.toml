@@ -14,7 +14,10 @@ license-files = ["LICENSE"]
 authors = [
   {name = "Adam J. Forster", email = "hello@adamjforster.co"},
 ]
-dependencies = ["Django>=6.0"]
+dependencies = [
+    "Django>=6.0",
+    "pymemcache>=4.0.0"
+]
 
 
 [tool.coverage.run]
