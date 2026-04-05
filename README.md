@@ -7,13 +7,15 @@
 | split\_tests/\_\_init\_\_.py             |        0 |        0 |        0 |        0 |    100% |           |
 | split\_tests/admin.py                    |       36 |       36 |        8 |        0 |      0% |     1-104 |
 | split\_tests/apps.py                     |        5 |        0 |        0 |        0 |    100% |           |
-| split\_tests/cache.py                    |        3 |        0 |        0 |        0 |    100% |           |
+| split\_tests/cache.py                    |        6 |        0 |        0 |        0 |    100% |           |
+| split\_tests/config.py                   |       11 |        0 |        4 |        0 |    100% |           |
 | split\_tests/help\_text.py               |        2 |        0 |        0 |        0 |    100% |           |
-| split\_tests/managers.py                 |       29 |        0 |        6 |        0 |    100% |           |
+| split\_tests/managers.py                 |       81 |        0 |       24 |        0 |    100% |           |
+| split\_tests/middleware.py               |       72 |       12 |       32 |        5 |     84% |23-35, 43-\>46, 56, 65-\>69, 69-\>50, 118-119, 133-\>132 |
 | split\_tests/migrations/0001\_initial.py |        9 |        0 |        0 |        0 |    100% |           |
 | split\_tests/migrations/\_\_init\_\_.py  |        0 |        0 |        0 |        0 |    100% |           |
-| split\_tests/models.py                   |       92 |        6 |       10 |        0 |     94% |40, 43, 134, 137, 173, 176 |
-| **TOTAL**                                |  **176** |   **42** |   **24** |    **0** | **75%** |           |
+| split\_tests/models.py                   |       71 |        6 |        0 |        0 |     92% |38, 41, 89, 92, 128, 131 |
+| **TOTAL**                                |  **293** |   **54** |   **68** |    **5** | **81%** |           |
 
 
 ## Setup coverage badge
