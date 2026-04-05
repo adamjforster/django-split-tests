@@ -22,4 +22,17 @@ INSTALLED_APPS = [
 ]
 
 SITE_ID = 1
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+MIDDLEWARE = [
+    # ...
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'split_tests.middleware.SplitTestMiddleware',  # Must come after AuthenticationMiddleware.
+    # ...
+]
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        "LOCATION": "127.0.0.1:11211",
+    }
+}
 ```
