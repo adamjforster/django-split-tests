@@ -17,16 +17,16 @@ Update your settings.py with:
 ```python
 INSTALLED_APPS = [
     # ...
-    'django.contrib.sites',
-    'split_tests',
+    "django.contrib.sites",
+    "split_tests",
 ]
 
 SITE_ID = 1
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 MIDDLEWARE = [
     # ...
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'split_tests.middleware.SplitTestMiddleware',  # Must come after AuthenticationMiddleware.
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "split_tests.middleware.SplitTestMiddleware",  # Must come after AuthenticationMiddleware.
     # ...
 ]
 CACHES = {
